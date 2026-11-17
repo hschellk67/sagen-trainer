@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sagen-Trainer">
+<meta name="theme-color" content="#1e1b4b">
+<title>Sagen-Trainer: Vergangenheitsformen</title>
+<style>
+:root{
+  --bg:#f2f2f7; --card:#ffffff; --card2:#f6f6f9; --text:#0f172a; --muted:#64748b; --line:rgba(15,23,42,.09);
+  --ok:#059669; --okbg:#ecfdf5; --okline:#a7f3d0;
+  --bad:#e11d48; --badbg:#fff1f2; --badline:#fecdd3;
+  --warn:#b45309; --warnbg:#fffbeb; --warnline:#fde68a;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 28px rgba(15,23,42,.07);
+  --bar:rgba(255,255,255,.78);
+  --mc:#4f46e5;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#000; --card:#1c1c1e; --card2:#2c2c2e; --text:#f5f5f7; --muted:#a1a1aa; --line:rgba(255,255,255,.1);
+    --ok:#34d399; --okbg:rgba(16,185,129,.14); --okline:rgba(52,211,153,.35);
+    --bad:#fb7185; --badbg:rgba(244,63,94,.14); --badline:rgba(251,113,133,.35);
+    --warn:#fbbf24; --warnbg:rgba(245,158,11,.13); --warnline:rgba(251,191,36,.35);
+    --shadow:0 0 0 1px rgba(255,255,255,.06);
+    --bar:rgba(28,28,30,.8);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+input{font:inherit;font-size:17px;color:var(--text)}
+.ico{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+.wrap{max-width:900px;margin:0 auto;padding-left:calc(16px + var(--sal));padding-right:calc(16px + var(--sar))}
+
+/* Header */
+.top{position:sticky;top:0;z-index:20;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--line);padding-top:var(--sat)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(79,70,229,.35)}
+.brand h1{font-size:17px;margin:0;line-height:1.15;letter-spacing:-.01em}
+.brand p{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pills{display:flex;align-items:center;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;background:var(--card);box-shadow:var(--shadow);font-weight:700;font-size:14px}
+.pill .f{color:#f59e0b}.pill .s{color:#10b981}
+.iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow)}
+.iconbtn:active,.pill:active{transform:scale(.95)}
+
+main{padding-top:18px;padding-bottom:calc(96px + var(--sab))}
+body.in-game main{padding-bottom:calc(32px + var(--sab))}
+.view{display:none}
+.view.on{display:block;animation:in .28s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stack>*+*{margin-top:16px}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:24px 22px;color:#fff;
+  background:radial-gradient(120% 140% at 100% 0%,#7c3aed 0%,#4338ca 45%,#1e1b4b 100%);box-shadow:0 12px 32px rgba(49,46,129,.3)}
+.hero svg.moon{position:absolute;right:-28px;top:-30px;width:150px;height:150px;opacity:.75}
+@media (max-width:520px){.hero svg.moon{width:110px;height:110px;right:-30px;top:-34px}.hero h2{padding-right:30px}}
+.hero .eyebrow{color:#fff;display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  background:rgba(255,255,255,.15);padding:5px 10px;border-radius:999px}
+.hero h2{font-size:clamp(24px,5.5vw,34px);line-height:1.12;margin:12px 0 8px;letter-spacing:-.02em;max-width:560px;position:relative}
+.hero p{margin:0;color:rgba(255,255,255,.82);max-width:540px;position:relative}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;position:relative}
+.stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:10px 12px}
+.stat b{display:block;font-size:22px;line-height:1.1}
+.stat span{font-size:12px;color:rgba(255,255,255,.75)}
+.meter{height:6px;border-radius:9px;background:rgba(255,255,255,.18);margin-top:8px;overflow:hidden}
+.meter i{display:block;height:100%;background:#34d399;border-radius:9px;transition:width .4s}
+
+.banner{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:var(--warnbg);border:1px solid var(--warnline)}
+.banner .bi{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#f59e0b;color:#fff;flex:none}
+.banner h3{margin:0;font-size:15px}
+.banner p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.banner .grow{flex:1;min-width:0}
+.btn-sm{padding:10px 14px;border-radius:12px;background:#d97706;color:#fff;font-weight:700;font-size:14px;white-space:nowrap}
+.btn-sm:active{transform:scale(.96)}
+
+.sec-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 4px 10px}
+.modes{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:640px){.modes{grid-template-columns:1fr 1fr}}
+@media (min-width:1180px){.modes{grid-template-columns:1fr 1fr 1fr}}
+.mode{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;padding:18px;border-radius:22px;background:var(--card);box-shadow:var(--shadow);transition:transform .15s}
+.mode:active{transform:scale(.98)}
+.mode .mi{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;flex:none;font-size:22px;
+  color:var(--mc);background:color-mix(in srgb,var(--mc) 14%,transparent)}
+.mode h3{margin:0 0 3px;font-size:17px;letter-spacing:-.01em}
+.mode p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+.mode .meta{display:flex;flex-wrap:wrap;white-space:nowrap;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--mc)}
+.tag{padding:3px 8px;border-radius:8px;background:color-mix(in srgb,var(--mc) 12%,transparent)}
+
+/* Tabbar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--line);padding-bottom:var(--sab)}
+.tabbar .wrap{display:flex;justify-content:space-around;height:62px;max-width:520px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.tab .ico{width:24px;height:24px}
+.tab.on{color:#4f46e5}
+@media (prefers-color-scheme:dark){.tab.on{color:#a5b4fc}}
+body.in-game .tabbar{display:none}
+
+/* Game */
+.gbar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.prog{flex:1}
+.prog .row{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.prog .row b{color:var(--mc)}
+.track{height:8px;border-radius:9px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;border-radius:9px;background:var(--mc);transition:width .35s}
+.gcard{background:var(--card);border-radius:26px;box-shadow:var(--shadow);padding:22px 18px}
+@media (min-width:640px){.gcard{padding:30px 30px}}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+  padding:5px 10px;border-radius:9px;color:var(--mc);background:color-mix(in srgb,var(--mc) 12%,transparent)}
+.instr{color:var(--muted);font-size:15px;margin:12px 0 14px}
+.sentence{background:var(--card2);border-radius:18px;padding:20px 18px;font-size:clamp(19px,4.6vw,23px);line-height:1.9;font-weight:500}
+.blank{display:inline-block;width:9.2em;max-width:100%;margin:0 4px;padding:3px 10px;text-align:center;font-weight:700;color:var(--mc);
+  background:var(--card);border:2px solid color-mix(in srgb,var(--mc) 40%,transparent);border-radius:12px;outline:none;vertical-align:baseline;line-height:1.5}
+.blank:focus,.inp:focus{border-color:var(--mc);box-shadow:0 0 0 4px color-mix(in srgb,var(--mc) 18%,transparent)}
+.center{text-align:center}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-size:clamp(34px,9vw,46px);font-weight:800;letter-spacing:-.02em;margin:2px 0 18px}
+.fields{display:grid;gap:12px;max-width:620px;margin:0 auto}
+@media (min-width:640px){.fields{grid-template-columns:1fr 1fr}}
+.field{background:var(--card2);border-radius:18px;padding:14px}
+.flabel{display:block;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.frow{display:flex;align-items:center;gap:8px}
+.pre{font-size:14px;color:var(--muted);white-space:nowrap}
+.inp{width:100%;min-width:0;height:48px;padding:0 14px;border-radius:13px;border:2px solid var(--line);background:var(--card);font-weight:700;outline:none}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-bottom:8px;border:1px solid var(--line)}
+.seg button{flex:1;height:38px;border-radius:9px;font-weight:700;font-size:15px;color:var(--muted)}
+.seg button.on{background:var(--mc);color:#fff}
+.seg.ok button.on{background:var(--ok)}.seg.bad button.on{background:var(--bad)}.seg.warn{border-color:var(--warnline)}
+.is-ok{border-color:var(--ok)!important;background:var(--okbg)!important;color:var(--ok)!important}
+.is-bad{border-color:var(--bad)!important;background:var(--badbg)!important;color:var(--bad)!important}
+.is-warn{border-color:#f59e0b!important;background:var(--warnbg)!important}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+.toks{display:flex;flex-wrap:wrap;gap:6px;background:var(--card2);border-radius:18px;padding:16px}
+.tok{padding:8px 11px;border-radius:12px;border:2px solid transparent;background:var(--card);font-size:clamp(18px,4.4vw,21px);font-weight:500;box-shadow:0 1px 1px rgba(0,0,0,.04)}
+.tok:active{transform:scale(.96)}
+.tok.sel{background:var(--mc);color:#fff;border-color:var(--mc)}
+.tok.nope{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.tok.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.fix{display:none;margin-top:14px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--mc) 8%,transparent);border:1px solid color-mix(in srgb,var(--mc) 25%,transparent)}
+.fix.on{display:block;animation:in .2s}
+.fix label{display:block;font-size:14px;font-weight:700;margin-bottom:8px}
+
+.zsent{background:var(--card2);border-radius:18px;padding:20px 18px;font-size:clamp(19px,4.6vw,23px);line-height:1.7;font-weight:500}
+.zsent mark{background:color-mix(in srgb,var(--mc) 22%,transparent);color:inherit;padding:1px 5px;border-radius:7px;font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.opt{min-height:58px;padding:10px 12px;border-radius:16px;background:var(--card2);border:2px solid var(--line);font-weight:700;font-size:17px;transition:transform .12s}
+.opt:active{transform:scale(.97)}
+.opt.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt:disabled{cursor:default}
+.qtitle{font-size:clamp(22px,5.5vw,28px);font-weight:800;margin:10px 0 4px;letter-spacing:-.01em}
+
+.fb{display:none;margin-top:18px;padding:14px 16px;border-radius:18px;border:1px solid}
+.fb.on{display:flex;gap:12px;animation:in .22s}
+.fb .fi{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.fb h4{margin:3px 0 2px;font-size:16px}
+.fb p{margin:4px 0 0;font-size:14.5px;line-height:1.5}
+.fb.ok{background:var(--okbg);border-color:var(--okline)}.fb.ok .fi{background:var(--ok)}
+.fb.bad{background:var(--badbg);border-color:var(--badline)}.fb.bad .fi{background:var(--bad)}
+.fb.warn{background:var(--warnbg);border-color:var(--warnline)}.fb.warn .fi{background:#f59e0b}
+.forms{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:10px;background:var(--card);font-weight:600;font-size:14.5px}
+
+.actions{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.key{height:52px;min-width:52px;padding:0 14px;border-radius:16px;background:var(--card2);font-weight:800;font-size:19px;border:1px solid var(--line)}
+.key:active{transform:scale(.95)}
+.btn{flex:1;height:52px;border-radius:16px;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;background:var(--mc);
+  box-shadow:0 6px 18px color-mix(in srgb,var(--mc) 30%,transparent)}
+.btn:active{transform:scale(.98)}
+.btn.dark{background:var(--text);color:var(--bg);box-shadow:none}
+.btn.amber{background:#d97706;--mc:#d97706}
+.hide{display:none!important}
+
+/* Summary */
+.sum{text-align:center}
+.trophy{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;margin:4px auto 12px;font-size:34px;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.sum h2{margin:0;font-size:28px;letter-spacing:-.02em}
+.sum .sub{color:var(--muted);margin:6px 0 18px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:460px;margin:0 auto 18px}
+.sgrid div{background:var(--card2);border-radius:16px;padding:12px 6px}
+.sgrid small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.sgrid b{font-size:22px}
+.mlist{text-align:left;background:var(--warnbg);border:1px solid var(--warnline);border-radius:18px;padding:14px;margin-bottom:16px}
+.mlist h3{margin:0 0 10px;font-size:15px}
+.mitem{background:var(--card);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:14.5px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.mitem .no{color:var(--bad);font-size:13px;font-weight:600}
+.col{display:flex;flex-direction:column;gap:10px;max-width:460px;margin:0 auto}
+
+/* Verbliste */
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:0 14px;box-shadow:var(--shadow);height:48px}
+.search input{flex:1;border:0;outline:none;background:none;height:100%}
+.filters{display:flex;gap:8px;margin:12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fchip{padding:8px 14px;border-radius:999px;background:var(--card);box-shadow:var(--shadow);font-weight:600;font-size:14px;white-space:nowrap}
+.fchip.on{background:#4f46e5;color:#fff}
+.vlist{background:var(--card);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.vrow{border-top:1px solid var(--line)}
+.vrow:first-child{border-top:0}
+.vrow summary{list-style:none;display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer}
+.vrow summary::-webkit-details-marker{display:none}
+.vrow .vi{flex:1;min-width:0}
+.vrow .inf{font-weight:700}
+.vrow .frm{font-size:14px;color:var(--muted)}
+.vrow .frm b{color:var(--text)}
+.dots{display:flex;gap:4px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:#10b981}
+.vrow .tipx{padding:0 16px 14px;font-size:14px;color:var(--muted)}
+.vtype{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--muted);margin-left:6px}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+
+/* Merkhilfe */
+.tips{display:grid;gap:12px}
+@media (min-width:640px){.tips{grid-template-columns:1fr 1fr}}
+.tipc{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px}
+.tipc h3{margin:0 0 8px;font-size:16px;display:flex;align-items:center;gap:8px}
+.tipc h3 span{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:14px;flex:none}
+.tipc p{margin:6px 0;font-size:14.5px;color:var(--muted)}
+.tipc p b,.tipc td b{color:var(--text)}
+.tipc table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+.tipc td{padding:7px 4px;border-top:1px solid var(--line);vertical-align:top}
+.tipc td:first-child{font-weight:700;white-space:nowrap;padding-right:10px}
+.tipc.wide{grid-column:1/-1}
+
+/* Sheet */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.sheet{width:100%;max-width:520px;background:var(--card);border-radius:26px 26px 0 0;padding:20px calc(20px + var(--sar)) calc(24px + var(--sab)) calc(20px + var(--sal));animation:up .25s ease-out}
+@media (min-width:640px){.overlay{align-items:center}.sheet{border-radius:26px}}
+@keyframes up{from{transform:translateY(40px)}}
+.sheet h3{margin:0 0 14px;font-size:19px}
+.sheet label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 6px}
+.sheet .inp{background:var(--card2)}
+.danger{width:100%;margin-top:18px;height:48px;border-radius:14px;font-weight:700;color:var(--bad);background:var(--badbg)}
+.danger.arm{background:var(--bad);color:#fff}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:28px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <button class="brand" onclick="app.tab('home')" aria-label="Zur Übersicht">
+      <div class="logo" data-i="feather"></div>
+      <div style="text-align:left;min-width:0">
+        <h1>Sagen-Trainer</h1>
+        <p>Vergangenheitsformen · Klasse 6</p>
+      </div>
+    </button>
+    <div class="pills">
+      <div class="pill" title="Aktuelle Serie"><span class="f" data-i="flame"></span><span id="h-streak">0</span></div>
+      <div class="pill" title="Punkte"><span class="s" data-i="star"></span><span id="h-score">0</span></div>
+      <button class="iconbtn" onclick="app.openSettings()" aria-label="Einstellungen" data-i="gear"></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="v-home" class="view on"></section>
+  <section id="v-verbs" class="view"></section>
+  <section id="v-tips" class="view"></section>
+
+  <section id="v-game" class="view">
+    <div class="gbar">
+      <button class="iconbtn" onclick="app.exitGame()" aria-label="Training beenden" data-i="x"></button>
+      <div class="prog">
+        <div class="row"><b id="g-mode">Modus</b><span id="g-count">1 / 10</span></div>
+        <div class="track"><i id="g-bar" style="width:10%"></i></div>
+      </div>
+    </div>
+    <div class="gcard" id="g-card">
+      <div id="g-q"></div>
+      <div class="fb" id="fb"><div class="fi" id="fb-i"></div><div><h4 id="fb-t"></h4><div id="fb-x"></div></div></div>
+      <div class="actions">
+        <button class="key" id="k-ss" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="app.insertSS()" aria-label="ß einfügen">ß</button>
+        <button class="btn" id="b-check" onclick="app.check()"><span>Überprüfen</span><span data-i="check"></span></button>
+        <button class="btn hide" id="b-next" onclick="app.next()"><span>Weiter</span><span data-i="arrow"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-sum" class="view"></section>
+  <p class="foot" id="foot">Sagen-Trainer · Präteritum, Perfekt & Plusquamperfekt für die 6. Klasse</p>
+</main>
+
+<nav class="tabbar" aria-label="Navigation">
+  <div class="wrap">
+    <button class="tab on" data-tab="home" onclick="app.tab('home')"><span data-i="home"></span>Training</button>
+    <button class="tab" data-tab="verbs" onclick="app.tab('verbs')"><span data-i="list"></span>Verben</button>
+    <button class="tab" data-tab="tips" onclick="app.tab('tips')"><span data-i="bulb"></span>Merkhilfe</button>
+  </div>
+</nav>
+
+<div class="overlay" id="ov" onclick="if(event.target===this)app.closeSettings()">
+  <div class="sheet" role="dialog" aria-label="Einstellungen">
+    <h3>Einstellungen</h3>
+    <label for="set-name">Name für die Begrüßung</label>
+    <input class="inp" id="set-name" type="text" autocomplete="off" autocorrect="off" maxlength="24" enterkeyhint="done">
+    <button class="danger" id="b-reset" onclick="app.reset()">Fortschritt zurücksetzen</button>
+    <button class="btn dark" style="width:100%;margin-top:10px" onclick="app.closeSettings()">Fertig</button>
+  </div>
+</div>
+
+<script>
+/* ---------- Icons ---------- */
+const P = {
+  feather:'<path d="M20.2 3.8a6 6 0 0 0-8.5 0L5 10.5V19h8.5l6.7-6.7a6 6 0 0 0 0-8.5z"/><path d="M16 8L2 22"/><path d="M17.5 15H9"/>',
+  flame:'<path d="M12 22c4 0 7-2.7 7-7 0-3-1.6-5.4-3.5-7.5-.4 1.8-1.4 3-2.5 3.5C13 7 11.5 4 9 2c0 4-5 6.5-5 13 0 4.3 3.6 7 8 7z"/>',
+  star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
+  bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  grid:'<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/>',
+  list:'<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+  bulb:'<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  home:'<path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+  alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>'
+};
+function ic(n){const f=n==='star';return `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" ${f?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'}>${P[n]}</svg>`}
+function paintIcons(root=document){root.querySelectorAll('[data-i]').forEach(el=>{el.innerHTML=ic(el.dataset.i);el.removeAttribute('data-i')})}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- Verb-Datenbank ---------- */
+const VERBS = [
+ {id:'schliessen',inf:'schließen',praet:'schloss',aux:['hat'],part:'geschlossen',
+  satz:'Der Bürgermeister {blank} einen geheimnisvollen Pakt mit dem Teufel.',wrong:'schließte',
+  det:['Der','Bürgermeister','schließte','einen','Pakt','mit','dem','Teufel.'],di:2,
+  tip:'Starkes Verb! Aus langem „ie“ wird kurzes „o“ – deshalb Doppel-s: schloss (nicht „schließte“).'},
+ {id:'laufen',inf:'laufen',praet:'lief',aux:['ist'],part:'gelaufen',
+  satz:'Am nächsten Morgen {blank} die sieben Männer so schnell wie möglich ins Dorf zurück.',lsg:'liefen',wrong:'laufte',
+  det:['Am','nächsten','Morgen','laufte','der','Bote','schnell','ins','Dorf','zurück.'],di:3,
+  tip:'„laufen“ ist ein starkes Verb. Im Präteritum wird aus „au“ ein „ie“: er lief, sie liefen (nicht „laufte“).'},
+ {id:'verschwinden',inf:'verschwinden',praet:'verschwand',aux:['ist'],part:'verschwunden',
+  satz:'Als die Steine ins Wasser fielen, {blank} die unheimlichen Geister sofort.',lsg:'verschwanden',wrong:'verschwindete',
+  det:['Als','der','Stein','fiel,','verschwindete','der','Geist','sofort','im','Nebel.'],di:4,
+  tip:'Aus „i“ wird im Präteritum „a“: verschwand. Das Partizip II hat „u“: ist verschwunden.'},
+ {id:'beschliessen',inf:'beschließen',praet:'beschloss',aux:['hat'],part:'beschlossen',
+  satz:'Die verängstigten Dorfbewohner {blank}, dem Vorschlag zuzustimmen.',lsg:'beschlossen',wrong:'beschließte',
+  det:['Der','Rat','beschließte,','dem','Vorschlag','des','Fremden','zuzustimmen.'],di:2,
+  tip:'Genau wie bei „schließen“: kurzes „o“ mit Doppel-s → er beschloss, sie beschlossen.'},
+ {id:'helfen',inf:'helfen',praet:'half',aux:['hat'],part:'geholfen',
+  satz:'Niemand im ganzen Tal {blank} den Bauern in ihrer großen Not.',wrong:'helfte',
+  det:['Niemand','im','ganzen','Tal','helfte','den','Bauern','in','ihrer','Not.'],di:4,
+  tip:'Stammvokalwechsel e → a → o: helfen – half – geholfen.'},
+ {id:'sprechen',inf:'sprechen',praet:'sprach',aux:['hat'],part:'gesprochen',
+  satz:'Mit tiefer, dunkler Stimme {blank} der Teufel zu dem mutigen Schmied.',wrong:'sprechte',
+  det:['Mit','dunkler','Stimme','sprechte','der','Teufel','zu','dem','Schmied.'],di:3,
+  tip:'Stammvokalwechsel e → a → o: sprechen – sprach – gesprochen.'},
+ {id:'ziehen',inf:'ziehen',praet:'zog',aux:['ist','hat'],part:'gezogen',
+  satz:'Dichter Nebel {blank} durch die tiefe Schlucht des Höllbachtals.',wrong:'ziehte',
+  det:['Dichter','Nebel','ziehte','durch','die','tiefe','Schlucht','des','Tals.'],di:2,
+  tip:'Im Präteritum fällt das „h“ weg, der Vokal wird zu „o“: zog. Perfekt: ist gezogen (Bewegung) oder hat gezogen (etwas ziehen).'},
+ {id:'finden',inf:'finden',praet:'fand',aux:['hat'],part:'gefunden',
+  satz:'Doch der Bürgermeister {blank} kein Mittel, um den unheimlichen Lärm zu stoppen.',wrong:'findete',
+  det:['Doch','der','Bürgermeister','findete','kein','Mittel','gegen','den','Lärm.'],di:3,
+  tip:'Stammvokalwechsel i → a → u: finden – fand – gefunden.'},
+ {id:'bringen',inf:'bringen',praet:'brachte',aux:['hat'],part:'gebracht',typ:'misch',
+  satz:'Am dritten Tag {blank} die Männer drei riesige Kochtöpfe an den Waldrand.',lsg:'brachten',wrong:'bringte',
+  det:['Der','Bote','bringte','drei','riesige','Kochtöpfe','an','den','Waldrand.'],di:2,
+  tip:'Mischverb! Es hat zwar „-te“, ändert aber den Stamm: bringen – brachte – gebracht.'},
+ {id:'fliegen',inf:'fliegen',praet:'flog',aux:['ist'],part:'geflogen',
+  satz:'Ein schwarzer Rabe {blank} krächzend über die alten Dächer des Dorfes.',wrong:'fliegte',
+  det:['Ein','schwarzer','Rabe','fliegte','krächzend','über','die','alten','Dächer.'],di:3,
+  tip:'Stammvokalwechsel ie → o → o: fliegen – flog – geflogen.'},
+ {id:'reissen',inf:'reißen',praet:'riss',aux:['hat'],part:'gerissen',
+  satz:'Ein gewaltiger Sturm {blank} die uralten Eichen mitsamt ihren Wurzeln aus.',wrong:'reißte',
+  det:['Ein','gewaltiger','Sturm','reißte','die','uralten','Bäume','aus','der','Erde.'],di:3,
+  tip:'Kurzes „i“ im Präteritum → Doppel-s: riss, gerissen (nicht „reißte“).'},
+ {id:'stehen',inf:'stehen',praet:'stand',aux:['hat','ist'],part:'gestanden',
+  satz:'Plötzlich {blank} eine dunkle Gestalt mitten auf dem schmalen Waldweg.',wrong:'stehte',
+  det:['Plötzlich','stehte','eine','dunkle','Gestalt','mitten','auf','dem','Weg.'],di:1,
+  tip:'Unregelmäßige Stammform: stehen – stand – gestanden. In Süddeutschland sagt man auch „ist gestanden“ – beides ist richtig.'},
+ {id:'gehen',inf:'gehen',praet:'ging',aux:['ist'],part:'gegangen',
+  satz:'Niemand {blank} freiwillig nach Einbruch der Dunkelheit in die tiefe Schlucht.',wrong:'gehte',
+  det:['Niemand','gehte','freiwillig','nach','Einbruch','der','Dunkelheit','ins','Tal.'],di:1,
+  tip:'Kompletter Stammwechsel: gehen – ging – gegangen.'},
+ {id:'bitten',inf:'bitten',praet:'bat',aux:['hat'],part:'gebeten',
+  satz:'Die verzweifelte Bevölkerung {blank} den alten Weisen um einen guten Rat.',wrong:'bittete',
+  det:['Der','Anführer','bittete','den','alten','Weisen','um','einen','guten','Rat.'],di:2,
+  tip:'Nicht mit „beten“ verwechseln: bitten – bat (langes a, nur ein t) – gebeten.'},
+ {id:'sinken',inf:'sinken',praet:'sank',aux:['ist'],part:'gesunken',
+  satz:'Der schwere Schatz {blank} lautlos auf den tiefen Grund des Bergsees.',wrong:'sinkte',
+  det:['Der','schwere','Schatz','sinkte','lautlos','auf','den','Grund','des','Sees.'],di:3,
+  tip:'Stammvokalwechsel i → a → u: sinken – sank – gesunken.'},
+ {id:'steigen',inf:'steigen',praet:'stieg',aux:['ist'],part:'gestiegen',
+  satz:'Bei Vollmond {blank} kalter Rauch aus den Felsenritzen empor.',wrong:'steigte',
+  det:['Bei','Vollmond','steigte','kalter','Rauch','aus','den','Felsen','empor.'],di:2,
+  tip:'Stammvokalwechsel ei → ie → ie: steigen – stieg – gestiegen.'},
+ {id:'greifen',inf:'greifen',praet:'griff',aux:['hat'],part:'gegriffen',
+  satz:'Der mutige Wanderer {blank} sofort nach seiner schweren Eisenlaterne.',wrong:'greifte',
+  det:['Der','mutige','Wanderer','greifte','sofort','nach','seiner','Laterne.'],di:3,
+  tip:'Kurzes „i“ → Doppel-f: greifen – griff – gegriffen.'},
+ {id:'schreien',inf:'schreien',praet:'schrie',aux:['hat'],part:'geschrien',alt:['geschrieen'],
+  satz:'Als der Felsbrocken ins Rollen kam, {blank} der Wächter laut auf.',wrong:'schreite',
+  det:['Als','der','Fels','rollte,','schreite','der','Wächter','laut','um','Hilfe.'],di:4,
+  tip:'Stammvokalwechsel ei → ie: schreien – schrie – geschrien.'},
+ {id:'denken',inf:'denken',praet:'dachte',aux:['hat'],part:'gedacht',typ:'misch',
+  satz:'Der schlaue Schmied {blank} lange über die List des Teufels nach.',wrong:'denkte',
+  det:['Der','schlaue','Schmied','denkte','lange','über','die','List','nach.'],di:3,
+  tip:'Mischverb: denken – dachte – gedacht (nicht „denkte“).'},
+ {id:'rufen',inf:'rufen',praet:'rief',aux:['hat'],part:'gerufen',
+  satz:'Vom höchsten Turm der Burg {blank} der Turmwächter seine Warnung hinab.',wrong:'rufte',
+  det:['Vom','höchsten','Turm','rufte','der','Wächter','seine','Warnung','hinab.'],di:3,
+  tip:'Starkes Verb: rufen – rief – gerufen (nicht „rufte“).'},
+ {id:'fallen',inf:'fallen',praet:'fiel',aux:['ist'],part:'gefallen',
+  satz:'Mit einem lauten Krachen {blank} das schwere Burgtor ins Schloss.',wrong:'fallte',
+  det:['Mit','lautem','Krachen','fallte','das','Tor','ins','Schloss.'],di:3,
+  tip:'Stammvokalwechsel a → ie → a: fallen – fiel – gefallen.'},
+ {id:'kommen',inf:'kommen',praet:'kam',aux:['ist'],part:'gekommen',
+  satz:'Um Mitternacht {blank} ein Reiter ohne Kopf aus dem dunklen Wald.',wrong:'kommte',
+  det:['Um','Mitternacht','kommte','ein','Reiter','aus','dem','Wald.'],di:2,
+  tip:'Stammvokalwechsel o → a → o: kommen – kam – gekommen.'},
+ {id:'sehen',inf:'sehen',praet:'sah',aux:['hat'],part:'gesehen',
+  satz:'Der Hirte {blank} ein flackerndes Licht im alten Gemäuer.',wrong:'sehte',
+  det:['Der','Hirte','sehte','ein','Licht','im','alten','Gemäuer.'],di:2,
+  tip:'Stammvokalwechsel e → a → e: sehen – sah – gesehen. Kein „-te“!'},
+ {id:'nehmen',inf:'nehmen',praet:'nahm',aux:['hat'],part:'genommen',
+  satz:'Der Junge {blank} all seinen Mut zusammen und betrat die Höhle.',wrong:'nehmte',
+  det:['Der','Junge','nehmte','all','seinen','Mut','zusammen.'],di:2,
+  tip:'nehmen – nahm – genommen. Achtung: Im Partizip II kurzes „o“ mit Doppel-m!'},
+ {id:'werfen',inf:'werfen',praet:'warf',aux:['hat'],part:'geworfen',
+  satz:'Der Riese {blank} einen gewaltigen Felsbrocken nach der Kirche.',wrong:'werfte',
+  det:['Der','Riese','werfte','einen','Felsen','nach','der','Kirche.'],di:2,
+  tip:'Stammvokalwechsel e → a → o: werfen – warf – geworfen.'},
+ {id:'fliehen',inf:'fliehen',praet:'floh',aux:['ist'],part:'geflohen',
+  satz:'Vor lauter Angst {blank} der Knecht aus dem verfluchten Haus.',wrong:'fliehte',
+  det:['Vor','Angst','fliehte','der','Knecht','aus','dem','Haus.'],di:2,
+  tip:'Stammvokalwechsel ie → o → o: fliehen – floh – geflohen.'},
+ {id:'tragen',inf:'tragen',praet:'trug',aux:['hat'],part:'getragen',
+  satz:'Der Fährmann {blank} den Fremden auf seinen Schultern über den Fluss.',wrong:'tragte',
+  det:['Der','Fährmann','tragte','den','Fremden','über','den','Fluss.'],di:2,
+  tip:'Stammvokalwechsel a → u → a: tragen – trug – getragen.'},
+ {id:'schlagen',inf:'schlagen',praet:'schlug',aux:['hat'],part:'geschlagen',
+  satz:'Die alte Turmuhr {blank} zwölfmal, und die Geister erwachten.',wrong:'schlagte',
+  det:['Die','Turmuhr','schlagte','zwölfmal','in','der','Nacht.'],di:2,
+  tip:'Stammvokalwechsel a → u → a: schlagen – schlug – geschlagen.'},
+ {id:'trinken',inf:'trinken',praet:'trank',aux:['hat'],part:'getrunken',
+  satz:'Der durstige Wanderer {blank} aus der verzauberten Quelle.',wrong:'trinkte',
+  det:['Der','Wanderer','trinkte','aus','der','verzauberten','Quelle.'],di:2,
+  tip:'Stammvokalwechsel i → a → u: trinken – trank – getrunken.'},
+ {id:'wissen',inf:'wissen',praet:'wusste',aux:['hat'],part:'gewusst',typ:'misch',
+  satz:'Niemand {blank}, wer der geheimnisvolle Fremde wirklich war.',wrong:'wisste',
+  det:['Niemand','wisste,','wer','der','Fremde','war.'],di:1,
+  tip:'Mischverb: wissen – wusste – gewusst. Kurzes „u“ → ss.'},
+ {id:'sitzen',inf:'sitzen',praet:'saß',aux:['hat','ist'],part:'gesessen',
+  satz:'Auf dem nassen Felsen {blank} eine Nixe und kämmte ihr langes Haar.',wrong:'sitzte',
+  det:['Auf','dem','Felsen','sitzte','eine','Nixe.'],di:3,
+  tip:'sitzen – saß – gesessen: langes „a“ → ß, kurzes „e“ → ss. In Süddeutschland auch „ist gesessen“.'},
+ {id:'essen',inf:'essen',praet:'aß',aux:['hat'],part:'gegessen',
+  satz:'Der hungrige Wolf {blank} alles, was er im Dorf finden konnte.',wrong:'esste',
+  det:['Der','hungrige','Wolf','esste','alles','auf.'],di:3,
+  tip:'essen – aß – gegessen: langes „a“ → ß, kurzes „e“ → ss.'},
+ {id:'liegen',inf:'liegen',praet:'lag',aux:['hat','ist'],part:'gelegen',
+  satz:'Tief unter der Burg {blank} ein vergessener Schatz.',wrong:'liegte',
+  det:['Unter','der','Burg','liegte','ein','Schatz.'],di:3,
+  tip:'Stammvokalwechsel ie → a → e: liegen – lag – gelegen.'},
+ {id:'reiten',inf:'reiten',praet:'ritt',aux:['ist','hat'],part:'geritten',
+  satz:'Der schwarze Ritter {blank} ohne ein Wort an den Wachen vorbei.',wrong:'reitete',
+  det:['Der','Ritter','reitete','ohne','ein','Wort','vorbei.'],di:2,
+  tip:'ei → i: kurzes „i“ → Doppel-t: ritt, geritten.'}
+];
+
+/* ---------- Zeitformen-Check ---------- */
+const TENSES=['Präsens','Präteritum','Perfekt','Plusquamperfekt'];
+const BAUPLAN={
+  'Präsens':'ein Verbteil in der Gegenwart (er sieht)',
+  'Präteritum':'ein Verbteil in der Vergangenheit (er sah)',
+  'Perfekt':'hat/ist + Partizip II (er hat gesehen)',
+  'Plusquamperfekt':'hatte/war + Partizip II (er hatte gesehen)'
+};
+const ZEIT=[
+ {id:'z1',s:'Der Ritter [[ritt]] im Morgengrauen durch das Burgtor.',t:'Präteritum',e:'Ein einziges Verbteil, Vergangenheit von „reiten“.'},
+ {id:'z2',s:'Der Drache [[hat]] den Schatz jahrhundertelang [[bewacht]].',t:'Perfekt',e:'„hat“ (Präsens von haben) + Partizip II „bewacht“.'},
+ {id:'z3',s:'Nachdem die Glocke zwölfmal [[geschlagen hatte]], erschien der Geist.',t:'Plusquamperfekt',e:'„hatte“ + Partizip II: Das Schlagen geschah noch vor dem Erscheinen des Geistes (Vorvergangenheit).'},
+ {id:'z4',s:'Die Hexe [[ist]] auf ihrem Besen [[davongeflogen]].',t:'Perfekt',e:'„ist“ + Partizip II. Bei Bewegung steht „sein“.'},
+ {id:'z5',s:'Im tiefen Wald [[lebt]] ein alter Einsiedler.',t:'Präsens',e:'Gegenwartsform – so klingt eine Sage, die jemand gerade erzählt.'},
+ {id:'z6',s:'Die Bauern [[waren]] schon lange vor dem Sturm [[geflohen]].',t:'Plusquamperfekt',e:'„waren“ (Präteritum von sein) + Partizip II „geflohen“.'},
+ {id:'z7',s:'Der Schmied [[schmiedete]] ein glühendes Schwert.',t:'Präteritum',e:'„schmieden“ ist ein schwaches Verb – hier ist die Endung „-te“ richtig!'},
+ {id:'z8',s:'Plötzlich [[erklang]] ein seltsames Lied aus der Höhle.',t:'Präteritum',e:'Ein Verbteil, Vergangenheit von „erklingen“ (i → a).'},
+ {id:'z9',s:'Der Zwerg [[hat]] das Gold tief im Berg [[versteckt]].',t:'Perfekt',e:'„hat“ + Partizip II „versteckt“.'},
+ {id:'z10',s:'Bevor der Hahn krähte, [[hatte]] der Teufel die Brücke fast [[vollendet]].',t:'Plusquamperfekt',e:'„hatte“ + Partizip II: Es war schon vor dem Krähen fast fertig.'},
+ {id:'z11',s:'Der Wanderer [[sieht]] ein Licht hinter den Bäumen.',t:'Präsens',e:'Gegenwartsform von „sehen“.'},
+ {id:'z12',s:'Die Prinzessin [[war]] in einen tiefen Schlaf [[gefallen]].',t:'Plusquamperfekt',e:'„war“ + Partizip II „gefallen“.'},
+ {id:'z13',s:'Der Riese [[warf]] einen gewaltigen Felsen in den Fluss.',t:'Präteritum',e:'Ein Verbteil, Vergangenheit von „werfen“ (e → a).'},
+ {id:'z14',s:'Die Wölfe [[sind]] in der Nacht ins Dorf [[gekommen]].',t:'Perfekt',e:'„sind“ (Präsens von sein) + Partizip II „gekommen“.'},
+ {id:'z15',s:'Der alte Mann [[war]] sehr müde.',t:'Präteritum',e:'Falle! „war“ steht hier allein, ohne Partizip II. Dann ist es das Präteritum von „sein“.'},
+ {id:'z16',s:'Der König [[hatte]] drei wunderschöne Töchter.',t:'Präteritum',e:'Falle! „hatte“ steht allein, ohne Partizip II – also Präteritum von „haben“.'},
+ {id:'z17',s:'Mönche [[haben]] die Sage vor langer Zeit [[aufgeschrieben]].',t:'Perfekt',e:'„haben“ + Partizip II „aufgeschrieben“.'},
+ {id:'z18',s:'Seit Jahrhunderten [[erzählen]] die Menschen diese Sage.',t:'Präsens',e:'Gegenwartsform – das Erzählen passiert bis heute.'}
+];
+
+const MODES={
+ luecke:{title:'Sagen-Lückentext',desc:'Setze das Verb im Präteritum in spannende Sagen-Sätze ein – genau wie beim Aufsatzschreiben.',n:10,color:'#2563eb',icon:'book',tag:'Präteritum'},
+ stamm:{title:'Stammformen-Blitz',desc:'Infinitiv sehen, Präteritum und Perfekt bilden – inklusive „hat“ oder „ist“.',n:8,color:'#059669',icon:'bolt',tag:'Präteritum · Perfekt'},
+ detektiv:{title:'Fehler-Detektiv',desc:'Finde Aufsatz-Fehler wie „schließte“ oder „laufte“ und verbessere sie wie eine Lehrkraft.',n:8,color:'#7c3aed',icon:'search',tag:'Korrigieren'},
+ zeit:{title:'Zeitformen-Check',desc:'Präsens, Präteritum, Perfekt oder Plusquamperfekt? Erkenne die Zeitform am Bauplan.',n:10,color:'#d97706',icon:'clock',tag:'Alle Zeitformen'},
+ quiz:{title:'Blitz-Quiz',desc:'Schnell antippen: Welche Präteritum-Form stimmt? Ideal für zwischendurch.',n:12,color:'#db2777',icon:'grid',tag:'Antippen'},
+ review:{title:'Fehler-Wiederholung',n:12,color:'#d97706'}
+};
+const INP='type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="go"';
+
+/* ---------- Hilfsfunktionen ---------- */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{const c=[...a];for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c};
+function lev(a,b){const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);for(let j=1;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function norm(s,field){let v=String(s||'').trim().toLowerCase().replace(/\s+/g,' ').replace(/^(er\/sie\/es|er|sie|es)\s+/,'');
+  if(field==='part')v=v.replace(/^(hat|ist|haben|sind)\s+/,'');return v}
+const ssKey=w=>w.replace(/ß/g,'ss');
+
+/* Pädagogische Fehlerdiagnose: erklärt, WAS falsch ist, statt nur „falsch“ zu sagen */
+function diagnose(val,exp,v,field){
+  if(v&&val===v.inf)return 'Das ist noch die Grundform (Infinitiv). Gesucht ist die Vergangenheitsform.';
+  if(field==='praet'&&v&&(val===v.part||(v.alt||[]).includes(val)))return 'Das ist das Partizip II (für das Perfekt). Im Präteritum brauchst du nur <b>ein</b> Wort – ohne „ge-“.';
+  if(field==='part'&&v&&val===v.praet)return 'Das ist die Präteritum-Form. Für das Perfekt brauchst du das Partizip II – meist mit „ge-“ vorne.';
+  if(ssKey(val)===ssKey(exp))return 'Fast! Nur <b>ß</b> und <b>ss</b> verwechselt. Merke: nach kurzem Vokal <b>ss</b>, nach langem Vokal <b>ß</b>.';
+  if(field==='praet'&&v&&v.praet!==exp&&val===v.praet)return 'Richtiges Verb – aber schau auf das Subjekt: Es sind <b>mehrere</b>. Du brauchst die Mehrzahl-Form.';
+  if(field==='praet'&&v&&v.typ!=='misch'&&/te(n)?$/.test(val)&&!/te(n)?$/.test(exp))return `„${esc(val)}“ gibt es nicht: <b>${v.inf}</b> ist ein starkes Verb. Es ändert seinen Stammvokal, statt „-te“ anzuhängen.`;
+  if(field==='praet'&&v&&v.typ==='misch'&&/te(n)?$/.test(val))return 'Gut, „-te“ ist hier richtig – <b>'+v.inf+'</b> ist ein Mischverb. Aber der Wortstamm ändert sich zusätzlich. Wie klingt es in einer Sage?';
+  if(field==='part'&&!/^ge|^be|^ver/.test(val)&&/^ge/.test(exp))return 'Das Partizip II beginnt bei diesem Verb mit „ge-“.';
+  if(lev(val,exp)===1)return 'Ganz knapp! Nur ein Buchstabe stimmt nicht. Prüfe die Rechtschreibung.';
+  const k=val.startsWith(exp.slice(0,2))?Math.min(exp.length-1,4):2;return `Noch nicht. Kleiner Tipp: Die richtige Form beginnt mit „${esc(exp.slice(0,k))}…“.`;
+}
+
+/* ---------- App ---------- */
+class App{
+  constructor(){
+    this.s={score:0,best:0,mistakes:[],boxes:{},name:'Jakob'};
+    this.streak=0;this.filter='alle';this.query='';
+    this.load();
+    paintIcons();
+    this.header();this.renderHome();this.renderVerbs();this.renderTips();
+    document.getElementById('g-card').addEventListener('focusin',e=>{if(e.target.tagName==='INPUT'){this.lastInput=e.target;
+      setTimeout(()=>e.target.scrollIntoView({block:'center',behavior:'smooth'}),320)}});
+    $('#set-name').addEventListener('input',e=>{this.s.name=e.target.value.trim()||'Jakob';this.save();this.renderHome()});
+  }
+  load(){try{const raw=localStorage.getItem('sagen_trainer_v2');
+      if(raw){Object.assign(this.s,JSON.parse(raw))}
+      else{const sc=localStorage.getItem('jakob_sagen_score'),mi=localStorage.getItem('jakob_sagen_mistakes');
+        if(sc)this.s.score=parseInt(sc,10)||0; if(mi){const a=JSON.parse(mi);if(Array.isArray(a))this.s.mistakes=a}}
+    }catch(e){}
+    this.s.mistakes=this.s.mistakes.filter(id=>VERBS.some(v=>v.id===id));}
+  save(){try{localStorage.setItem('sagen_trainer_v2',JSON.stringify(this.s))}catch(e){}}
+  header(){$('#h-score').textContent=this.s.score;$('#h-streak').textContent=this.streak}
+  mastered(){return VERBS.filter(v=>(this.s.boxes[v.id]||0)>=3).length}
+
+  /* Navigation */
+  show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));$('#v-'+id).classList.add('on');window.scrollTo(0,0)}
+  tab(t){if(document.body.classList.contains('in-game'))this.exitGame();
+    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+    if(t==='home')this.renderHome();if(t==='verbs')this.renderVerbs();this.show(t)}
+
+  renderHome(){
+    const m=this.mastered(),tot=VERBS.length,mc=this.s.mistakes.length;
+    const card=(k)=>{const d=MODES[k];return `<button class="mode" style="--mc:${d.color}" onclick="app.start('${k}')">
+      <div class="mi">${ic(d.icon)}</div><div><h3>${d.title}</h3><p>${d.desc}</p>
+      <div class="meta"><span class="tag">${d.tag}</span><span>${d.n} Aufgaben</span>${ic('arrow')}</div></div></button>`};
+    $('#v-home').innerHTML=`<div class="stack">
+      <div class="hero">
+        <svg class="moon" viewBox="0 0 200 200" aria-hidden="true"><circle cx="120" cy="80" r="46" fill="#fde68a" opacity=".9"/><circle cx="142" cy="66" r="44" fill="#4338ca" opacity=".95"/>
+          <g fill="#fff"><circle cx="40" cy="40" r="2"/><circle cx="70" cy="120" r="1.5"/><circle cx="180" cy="140" r="2"/><circle cx="60" cy="70" r="1"/><circle cx="170" cy="30" r="1.5"/></g></svg>
+        <span class="eyebrow">${ic('feather')} Grammatik-Werkstatt</span>
+        <h2>Hallo ${esc(this.s.name)}! Meistere die Erzählzeit für deine Sagen.</h2>
+        <p>Sagen erzählt man im <b>Präteritum</b>. Starke Verben ändern dabei ihren Stammvokal: <i>schließen → schloss</i>.</p>
+        <div class="stats">
+          <div class="stat"><b>${this.s.score}</b><span>Punkte</span></div>
+          <div class="stat"><b>${this.s.best}</b><span>Beste Serie</span></div>
+          <div class="stat"><b>${m}/${tot}</b><span>Verben sicher</span><div class="meter"><i style="width:${Math.round(m/tot*100)}%"></i></div></div>
+        </div>
+      </div>
+      ${mc?`<div class="banner"><div class="bi">${ic('refresh')}</div><div class="grow"><h3>Deine Fehler-Liste · ${mc} ${mc===1?'Verb':'Verben'}</h3>
+        <p>Übe gezielt die Verben, bei denen du noch unsicher warst.</p></div>
+        <button class="btn-sm" onclick="app.start('review')">Üben</button></div>`:''}
+    </div>
+    <div class="sec-title">Training wählen</div>
+    <div class="modes">${['luecke','stamm','detektiv','zeit','quiz'].map(card).join('')}</div>`;
+  }
+
+  /* Training */
+  pick(n){return VERBS.map(v=>({v,k:(this.s.boxes[v.id]||0)+Math.random()*1.6})).sort((a,b)=>a.k-b.k).slice(0,n).map(o=>o.v)}
+  start(mode){
+    if(mode==='review'&&!this.s.mistakes.length)return;
+    this.mode=mode;this.idx=0;this.correct=0;this.points=0;this.roundMist=[];
+    if(mode==='zeit')this.qs=shuffle(ZEIT).slice(0,MODES.zeit.n);
+    else if(mode==='review')this.qs=shuffle(VERBS.filter(v=>this.s.mistakes.includes(v.id))).slice(0,MODES.review.n);
+    else this.qs=this.pick(MODES[mode].n);
+    document.body.classList.add('in-game');
+    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab==='home'));
+    const col=MODES[mode].color;$('#v-game').style.setProperty('--mc',col);
+    $('#g-mode').textContent=MODES[mode].title;
+    this.show('game');this.renderQ();
+  }
+  exitGame(){document.body.classList.remove('in-game');this.renderHome();this.show('home')}
+
+  renderQ(){
+    const q=this.qs[this.idx],tot=this.qs.length;
+    this.q=q;this.attempt=1;this.answered=false;this.sel=null;this.aux=null;this.lastInput=null;
+    this.type=this.mode==='review'?'luecke':this.mode;
+    $('#g-count').textContent=`${this.idx+1} / ${tot}`;
+    $('#g-bar').style.width=`${(this.idx+1)/tot*100}%`;
+    $('#fb').className='fb';
+    const inputMode=['luecke','stamm','detektiv'].includes(this.type);
+    $('#b-check').classList.toggle('hide',!inputMode);
+    $('#k-ss').classList.toggle('hide',!inputMode);
+    $('#b-next').classList.add('hide');
+    let h='';
+    if(this.type==='luecke'){
+      const [a,b]=q.satz.split('{blank}');
+      h=`<span class="chip">${ic('book')} Infinitiv: ${q.inf}</span>
+        <p class="instr">Setze das Verb im <b>Präteritum</b> ein. Achte darauf, wer handelt – <b>einer oder mehrere</b>?</p>
+        <div class="sentence">${a}<input id="in1" class="blank" ${INP} placeholder="…" aria-label="Präteritum von ${q.inf}">${b}</div>`;
+    }else if(this.type==='stamm'){
+      h=`<div class="center"><div class="eyebrow">Grundform</div><div class="big">${q.inf}</div></div>
+        <div class="fields">
+          <div class="field"><label class="flabel" for="in1">1 · Präteritum</label>
+            <div class="frow"><span class="pre">er/sie/es</span><input id="in1" class="inp" ${INP} placeholder="z. B. schloss"></div></div>
+          <div class="field"><span class="flabel">2 · Perfekt</span>
+            <div class="seg" id="seg"><button data-v="hat" onclick="app.setAux('hat')">hat</button><button data-v="ist" onclick="app.setAux('ist')">ist</button></div>
+            <div class="frow"><span class="pre">er/sie/es <b id="auxlbl">…</b></span><input id="in2" class="inp" ${INP} placeholder="z. B. geschlossen" aria-label="Partizip II"></div></div>
+        </div>`;
+    }else if(this.type==='detektiv'){
+      h=`<span class="chip">${ic('search')} Aufsatz-Kontrolle</span>
+        <p class="instr"><b>1.</b> Tippe auf das falsch gebildete Verb. <b>2.</b> Schreib die richtige Präteritum-Form darunter.</p>
+        <div class="toks">${q.det.map((w,i)=>`<button class="tok" id="t${i}" onclick="app.selWord(${i})">${w}</button>`).join('')}</div>
+        <div class="fix" id="fix"><label for="in1">Richtige Form für <u id="selw"></u>:</label>
+          <input id="in1" class="inp" ${INP} placeholder="Richtige Form eintippen…"></div>`;
+    }else if(this.type==='zeit'){
+      const s=q.s.replace(/\[\[(.+?)\]\]/g,'<mark>$1</mark>');
+      h=`<span class="chip">${ic('clock')} Zeitform bestimmen</span>
+        <p class="instr">In welcher Zeitform steht das <b>markierte Verb</b>?</p>
+        <div class="zsent">${s}</div>
+        <div class="opts">${TENSES.map(t=>`<button class="opt" onclick="app.pickOpt(this,'${t}')">${t}</button>`).join('')}</div>`;
+    }else if(this.type==='quiz'){
+      const set=new Set([q.praet]);
+      const sw=q.praet.includes('ss')?q.praet.replace('ss','ß'):q.praet.includes('ß')?q.praet.replace('ß','ss'):null;
+      [q.wrong,q.part,sw,/te$/.test(q.praet)?null:q.praet+'te',q.inf].forEach(c=>{if(c&&set.size<4)set.add(c)});
+      h=`<span class="chip">${ic('grid')} Blitz-Quiz</span>
+        <div class="qtitle">Präteritum von „${q.inf}“?</div>
+        <p class="instr" style="margin-top:2px">er / sie / es …</p>
+        <div class="opts">${shuffle([...set]).map(o=>`<button class="opt" onclick="app.pickOpt(this,'${o}')">${o}</button>`).join('')}</div>`;
+    }
+    $('#g-q').innerHTML=h;
+    const inp=$('#in1'),inp2=$('#in2');
+    if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(this.type==='stamm'&&!this.answered)inp2.focus();else this.enter()}});
+    if(inp2)inp2.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();this.enter()}});
+    if(inp&&this.type!=='detektiv')inp.focus({preventScroll:true});
+  }
+  enter(){this.answered?this.next():this.check()}
+  setAux(v){if(this.answered)return;this.aux=v;$('#auxlbl').textContent=v;$('#seg').className='seg';
+    document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#in2').focus()}
+  selWord(i){
+    if(this.answered)return;this.sel=i;
+    document.querySelectorAll('.tok').forEach((b,j)=>b.classList.toggle('sel',j===i));
+    $('#selw').textContent='„'+this.q.det[i].replace(/[.,!?]/g,'')+'“';
+    $('#fix').classList.add('on');$('#fb').className='fb';
+    const inp=$('#in1');inp.className='inp';inp.focus();
+  }
+  insertSS(){const el=this.lastInput||$('#in1');if(!el||el.disabled)return;
+    const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;
+    el.value=el.value.slice(0,a)+'ß'+el.value.slice(b);el.focus();try{el.setSelectionRange(a+1,a+1)}catch(e){}}
+
+  feedback(kind,title,html){
+    const fb=$('#fb');fb.className='fb on '+kind;
+    $('#fb-i').innerHTML=ic(kind==='ok'?'check':kind==='bad'?'x':'bulb');
+    $('#fb-t').innerHTML=title;$('#fb-x').innerHTML=html;
+    setTimeout(()=>fb.scrollIntoView({block:'nearest',behavior:'smooth'}),60);
+  }
+  mark(el,cls){if(!el)return;el.classList.remove('is-ok','is-bad','is-warn','shake');void el.offsetWidth;el.classList.add(cls);if(cls==='is-warn')el.classList.add('shake')}
+
+  check(){
+    if(this.answered)return;const q=this.q;
+    if(this.type==='luecke'){
+      const inp=$('#in1'),val=norm(inp.value,'praet');if(!val){inp.focus();return}
+      const exp=q.lsg||q.praet;
+      if(val===exp){this.mark(inp,'is-ok');return this.resolve(true)}
+      return this.retry(diagnose(val,exp,q,'praet'),[inp]);
+    }
+    if(this.type==='stamm'){
+      const i1=$('#in1'),i2=$('#in2'),v1=norm(i1.value,'praet'),v2=norm(i2.value,'part');
+      if(!v1){i1.focus();return} if(!this.aux){this.feedback('warn','Hilfsverb fehlt','Tippe auf <b>hat</b> oder <b>ist</b>, bevor du das Partizip II einträgst.');$('#seg').className='seg warn shake';return}
+      if(!v2){i2.focus();return}
+      const ok1=v1===q.praet,ok2=q.aux.includes(this.aux),ok3=v2===q.part||(q.alt||[]).includes(v2);
+      this.mark(i1,ok1?'is-ok':'is-warn');this.mark(i2,ok3?'is-ok':'is-warn');$('#seg').className='seg '+(ok2?'ok':'warn');
+      if(ok1&&ok2&&ok3)return this.resolve(true);
+      const msg=[];
+      if(!ok1)msg.push('<b>Präteritum:</b> '+diagnose(v1,q.praet,q,'praet'));
+      if(!ok2)msg.push('<b>Hilfsverb:</b> '+(q.aux[0]==='ist'?'Bei einer Bewegung oder Veränderung (gehen, fallen, verschwinden …) bildet man das Perfekt mit „ist“.':'Dieses Verb bildet das Perfekt mit „hat“.'));
+      if(!ok3)msg.push('<b>Partizip II:</b> '+diagnose(v2,q.part,q,'part'));
+      return this.retry(msg.join('<br>'),[]);
+    }
+    if(this.type==='detektiv'){
+      if(this.sel===null){this.feedback('warn','Hinweis','Tippe zuerst auf das falsch gebildete Verb im Satz.');return}
+      if(this.sel!==q.di){
+        const w=q.det[this.sel].replace(/[.,!?]/g,'');
+        if(this.attempt===1){this.attempt=2;const t=$('#t'+this.sel);t.classList.remove('sel');t.classList.add('nope');t.disabled=true;
+          this.sel=null;$('#fix').classList.remove('on');
+          this.feedback('warn','Noch ein Versuch',`„${esc(w)}“ ist richtig. Such das Verb, das falsch gebildet wurde – oft verrät es sich durch die Endung „-te“.`);return}
+        return this.resolve(false);
+      }
+      const inp=$('#in1'),val=norm(inp.value,'praet');if(!val){inp.focus();return}
+      if(val===q.praet){this.mark(inp,'is-ok');return this.resolve(true)}
+      return this.retry(diagnose(val,q.praet,q,'praet'),[inp]);
+    }
+  }
+  retry(msg,inputs){
+    if(this.attempt===1){
+      this.attempt=2;inputs.forEach(i=>this.mark(i,'is-warn'));
+      this.feedback('warn','Noch ein Versuch',`<p>${msg}</p>`);
+      const f=inputs[0]||document.querySelector('.inp.is-warn');if(f){f.focus();f.select&&f.select()}
+      return;
+    }
+    inputs.forEach(i=>this.mark(i,'is-bad'));
+    document.querySelectorAll('.inp.is-warn').forEach(i=>this.mark(i,'is-bad'));
+    this.resolve(false);
+  }
+  formsLine(v){return `<span class="forms">${v.inf} → ${v.praet} → ${v.aux.join('/')} ${v.part}</span>`}
+
+  resolve(ok,custom){
+    this.answered=true;const q=this.q;let earned=0;
+    document.querySelectorAll('#g-q input,#g-q .tok,#seg button').forEach(e=>e.disabled=true);
+    if(this.type==='detektiv'){const t=$('#t'+q.di);if(t){t.classList.remove('sel');t.classList.add('right')}}
+    if(ok){
+      this.correct++;
+      if(this.attempt===1){this.streak++;earned=10+Math.min(this.streak*2,10)}else{earned=5}
+    }else this.streak=0;
+    this.s.best=Math.max(this.s.best,this.streak);
+    this.s.score+=earned;this.points+=earned;
+    const isVerb=this.type!=='zeit';
+    if(isVerb){
+      if(ok&&this.attempt===1){this.s.boxes[q.id]=Math.min((this.s.boxes[q.id]||0)+1,3);this.s.mistakes=this.s.mistakes.filter(id=>id!==q.id)}
+      else{this.s.boxes[q.id]=0;if(!this.s.mistakes.includes(q.id))this.s.mistakes.push(q.id);this.roundMist.push(q)}
+    }else if(!ok)this.roundMist.push(q);
+    this.save();this.header();
+    if(custom)this.feedback(ok?'ok':'bad',custom.t,custom.h);
+    else{
+      const plural=this.type==='luecke'&&q.lsg?`<p>Im Satz handeln mehrere, deshalb: <b>${q.lsg}</b>.</p>`:'';
+      const title=ok?(this.attempt===1?`Stark! +${earned} Punkte`:`Richtig im 2. Versuch · +${earned}`):'So ist es richtig:';
+      this.feedback(ok?'ok':'bad',title,`${this.formsLine(q)}${plural}<p>${q.tip}</p>`);
+    }
+    $('#b-check').classList.add('hide');$('#k-ss').classList.add('hide');
+    const n=$('#b-next');n.classList.remove('hide');n.querySelector('span').textContent=this.idx+1<this.qs.length?'Weiter':'Auswertung';
+    n.focus({preventScroll:true});
+  }
+  pickOpt(btn,val){
+    if(this.answered)return;const q=this.q;
+    const right=this.type==='zeit'?q.t:q.praet;const ok=val===right;
+    document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent===right)b.classList.add('right')});
+    if(!ok)btn.classList.add('wrong');
+    if(this.type==='zeit'){
+      this.resolve(ok,{t:ok?'Richtig erkannt!':`Das ist ${right}`,h:`<p><b>Bauplan ${right}:</b> ${BAUPLAN[right]}</p><p>${q.e}</p>`});
+    }else{
+      const why=ok?'':`<p>${diagnose(val,q.praet,q,'praet')}</p>`;
+      this.resolve(ok,{t:ok?'Richtig!':'Leider nicht',h:`${this.formsLine(q)}${why}<p>${q.tip}</p>`});
+      if(ok)$('#fb-t').textContent=`Richtig! +${10+Math.min(this.streak*2,10)} Punkte`;
+    }
+  }
+  next(){this.idx++;if(this.idx<this.qs.length)this.renderQ();else this.summary()}
+
+  summary(){
+    document.body.classList.remove('in-game');
+    const tot=this.qs.length,pct=Math.round(this.correct/tot*100);
+    const sub=pct===100?'Perfekt! Du bist bereit für die nächste Schulaufgabe.':pct>=75?'Richtig gut! Die wichtigsten Formen sitzen schon.':pct>=50?'Solide Runde – mit etwas Wiederholung wird das richtig stark.':'Guter Anfang! Schau dir die Formen unten in Ruhe an und übe sie nochmal.';
+    const list=this.roundMist.map(m=>m.inf?`<div class="mitem"><span><b>${m.inf}</b> → <b style="color:var(--ok)">${m.praet}</b> · ${m.aux[0]} ${m.part}</span><span class="no">nicht: „${m.wrong}“</span></div>`
+      :`<div class="mitem"><span>${m.s.replace(/\[\[(.+?)\]\]/g,'<b>$1</b>')}</span><span style="color:var(--ok);font-weight:700">${m.t}</span></div>`).join('');
+    $('#v-sum').innerHTML=`<div class="gcard sum">
+      <div class="trophy">${ic('trophy')}</div>
+      <h2>Runde geschafft!</h2><p class="sub">${sub}</p>
+      <div class="sgrid"><div><small>Richtig</small><b style="color:var(--ok)">${this.correct}/${tot}</b></div>
+        <div><small>Quote</small><b>${pct}%</b></div><div><small>Punkte</small><b style="color:#4f46e5">+${this.points}</b></div></div>
+      ${this.roundMist.length?`<div class="mlist"><h3>Das solltest du dir noch einmal merken:</h3>${list}</div>`:''}
+      <div class="col">
+        ${this.s.mistakes.length&&this.mode!=='zeit'?`<button class="btn amber" onclick="app.start('review')">${ic('refresh')} Fehler gleich üben</button>`:''}
+        <button class="btn" style="--mc:${MODES[this.mode].color}" onclick="app.start('${this.mode}')">Neue Runde</button>
+        <button class="btn dark" onclick="app.tab('home')">Zur Übersicht</button>
+      </div></div>`;
+    this.show('sum');
+  }
+
+  /* Verbliste */
+  renderVerbs(){
+    const q=this.query.toLowerCase();
+    const rows=VERBS.filter(v=>{const b=this.s.boxes[v.id]||0;
+        if(this.filter==='unsicher'&&!this.s.mistakes.includes(v.id))return false;
+        if(this.filter==='sicher'&&b<3)return false;
+        return !q||[v.inf,v.praet,v.part].some(x=>x.includes(q))})
+      .sort((a,b)=>a.inf.localeCompare(b.inf,'de'));
+    const dots=v=>{const b=this.s.boxes[v.id]||0;return `<div class="dots" title="${b}/3 sicher">${[1,2,3].map(i=>`<i class="${b>=i?'on':''}"></i>`).join('')}</div>`};
+    const html=rows.map(v=>`<details class="vrow"><summary><div class="vi"><div class="inf">${v.inf}${v.typ==='misch'?'<span class="vtype">Mischverb</span>':''}</div>
+      <div class="frm"><b>${v.praet}</b> · ${v.aux.join('/')} ${v.part}</div></div>${dots(v)}</summary><div class="tipx">${v.tip}</div></details>`).join('');
+    const f=(k,l)=>`<button class="fchip ${this.filter===k?'on':''}" onclick="app.setFilter('${k}')">${l}</button>`;
+    const keep=document.activeElement&&document.activeElement.id==='vsearch';
+    $('#v-verbs').innerHTML=`<div class="search">${ic('search')}<input id="vsearch" type="search" placeholder="Verb suchen …" value="${esc(this.query)}" autocomplete="off" autocorrect="off" autocapitalize="none"></div>
+      <div class="filters">${f('alle',`Alle (${VERBS.length})`)}${f('unsicher',`Fehler-Liste (${this.s.mistakes.length})`)}${f('sicher',`Sicher (${this.mastered()})`)}</div>
+      <div class="vlist">${html||'<div class="empty">Keine Verben gefunden.</div>'}</div>
+      <p class="foot">Grüne Punkte: wie oft du ein Verb hintereinander auf Anhieb richtig hattest. Drei Punkte = sicher.</p>`;
+    const s=$('#vsearch');s.addEventListener('input',e=>{this.query=e.target.value;this.renderVerbs()});
+    if(keep){s.focus();s.setSelectionRange(s.value.length,s.value.length)}
+  }
+  setFilter(k){this.filter=k;this.renderVerbs()}
+
+  /* Merkhilfe */
+  renderTips(){
+    $('#v-tips').innerHTML=`<div class="tips">
+      <div class="tipc wide"><h3><span style="background:#4f46e5">${ic('clock')}</span>Die Vergangenheitsformen im Überblick</h3>
+        <table>
+          <tr><td>Präteritum</td><td><b>er schloss</b> – ein Verbteil. Die <b>Erzählzeit</b> für Sagen, Märchen und Aufsätze.</td></tr>
+          <tr><td>Perfekt</td><td><b>er hat geschlossen</b> – hat/ist + Partizip II. Typisch beim mündlichen Erzählen.</td></tr>
+          <tr><td>Plusquamperfekt</td><td><b>er hatte geschlossen</b> – hatte/war + Partizip II. Für das, was <b>noch früher</b> geschah (oft mit „nachdem“).</td></tr>
+        </table></div>
+      <div class="tipc"><h3><span style="background:#e11d48">!</span>Keine „-te“-Endung bei starken Verben</h3>
+        <p>Starke Verben ändern ihren Stammvokal, statt „-te“ anzuhängen: nicht <i>schließte</i>, sondern <b>schloss</b>; nicht <i>laufte</i>, sondern <b>lief</b>.</p>
+        <p>Schwache Verben bekommen „-te“: <b>schmieden – schmiedete</b>. Mischverben machen beides: <b>bringen – brachte</b>.</p></div>
+      <div class="tipc"><h3><span style="background:#059669">ß</span>Lang oder kurz? ß oder ss</h3>
+        <p>Nach <b>langem</b> Vokal steht <b>ß</b>: schließen, saß, aß.</p>
+        <p>Nach <b>kurzem</b> Vokal steht <b>ss</b>: schloss, riss, gesessen.</p>
+        <p>Auf iPad und iPhone: lange auf „s“ drücken – oder die ß-Taste in der App nutzen.</p></div>
+      <div class="tipc"><h3><span style="background:#d97706">⇄</span>„hat“ oder „ist“?</h3>
+        <p><b>ist</b> bei Bewegung von A nach B oder Veränderung: ist gelaufen, ist gefallen, ist verschwunden.</p>
+        <p><b>hat</b> bei den meisten anderen Verben: hat geholfen, hat gesprochen.</p></div>
+      <div class="tipc"><h3><span style="background:#7c3aed">${ic('search')}</span>Detektiv-Trick für den Aufsatz</h3>
+        <p>Lies deinen Text nach dem Schreiben einmal nur auf die Verben. Klingt eine Form mit „-te“ komisch (<i>gehte, findete</i>)? Dann ist es fast immer ein starkes Verb.</p>
+        <p>Und: einmal im Präteritum angefangen – im Präteritum bleiben!</p></div>
+    </div>`;
+  }
+
+  /* Einstellungen */
+  openSettings(){$('#set-name').value=this.s.name;$('#b-reset').className='danger';$('#b-reset').textContent='Fortschritt zurücksetzen';$('#ov').classList.add('on')}
+  closeSettings(){$('#ov').classList.remove('on');$('#set-name').blur()}
+  reset(){const b=$('#b-reset');
+    if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Wirklich alles löschen? Nochmal tippen';return}
+    const name=this.s.name;this.s={score:0,best:0,mistakes:[],boxes:{},name};this.streak=0;this.save();this.header();
+    this.renderHome();this.renderVerbs();this.closeSettings();}
+}
+const app=new App();
+</script>
+</body>
+</html>
